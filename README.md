@@ -64,7 +64,6 @@ node src/server.js
 # Testar
 curl http://localhost:3000/health
 ```
-
 Depois é abrir o **[TASKS.md](./TASKS.md)** e seguir as regras do jogo:
 
 1. Cada task = uma branch nova (`git checkout -b feature/task-1-paginacao`)

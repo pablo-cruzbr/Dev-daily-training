@@ -26,5 +26,4 @@ router.get("/:id/pedidos", (req, res) => {
   // TODO: implementar
   res.status(501).json({ erro: "Não implementado ainda — TASK 7" });
 });
-
 module.exports = router;

@@ -3,7 +3,9 @@
 // Em produção seria PostgreSQL; aqui é array pra focar na lógica
 // ============================================================
 
-const clientes = [
+import { Cliente, Produto, Pedido } from "../types";
+
+const clientes: Cliente[] = [
   { id: 1, nome: "Metalúrgica São José", cidade: "Mogi das Cruzes", uf: "SP", ativo: true, criadoEm: "2024-03-10" },
   { id: 2, nome: "Construtora Horizonte", cidade: "Suzano", uf: "SP", ativo: true, criadoEm: "2024-05-22" },
   { id: 3, nome: "Serralheria Irmãos Lima", cidade: "Mogi das Cruzes", uf: "SP", ativo: false, criadoEm: "2023-11-01" },
@@ -14,7 +16,7 @@ const clientes = [
   { id: 8, nome: "Telhados Premium", cidade: "Mogi das Cruzes", uf: "SP", ativo: false, criadoEm: "2023-06-12" },
 ];
 
-const produtos = [
+const produtos: Produto[] = [
   { id: 1, nome: "Viga U 150x60", categoria: "vigas", precoKg: 8.5, estoqueKg: 12000 },
   { id: 2, nome: "Viga I 200x100", categoria: "vigas", precoKg: 9.2, estoqueKg: 8500 },
   { id: 3, nome: "Chapa Galvanizada 2mm", categoria: "chapas", precoKg: 11.0, estoqueKg: 5300 },
@@ -26,7 +28,7 @@ const produtos = [
 ];
 
 // 40 pedidos gerados — quantidade suficiente pra paginação fazer sentido
-const pedidos = [];
+const pedidos: Pedido[] = [];
 const statusList = ["pendente", "aprovado", "em_producao", "entregue", "cancelado"];
 let pid = 1;
 for (let mes = 1; mes <= 5; mes++) {
@@ -34,7 +36,7 @@ for (let mes = 1; mes <= 5; mes++) {
     const clienteId = (pid % 8) + 1;
     const produtoId = ((pid * 3) % 8) + 1;
     const quantidadeKg = 100 + ((pid * 137) % 2000);
-    const produto = produtos.find((p) => p.id === produtoId);
+    const produto = produtos.find((p) => p.id === produtoId)!;
     pedidos.push({
       id: pid,
       clienteId,
@@ -48,4 +50,4 @@ for (let mes = 1; mes <= 5; mes++) {
   }
 }
 
-module.exports = { clientes, produtos, pedidos };
+export { clientes, produtos, pedidos };

@@ -2,9 +2,9 @@
 // ROTAS DE CLIENTES
 // ============================================================
 
-const express = require("express");
-const router = express.Router();
-const { clientes, pedidos } = require("../data/db");
+import express, { Request, Response, Router } from "express";
+const router: Router = express.Router();
+import { clientes, pedidos } from "../data/db";
 
 // ------------------------------------------------------------
 // GET /clientes
@@ -12,7 +12,7 @@ const { clientes, pedidos } = require("../data/db");
 // insensitive e parcial. "metal" deve achar "Metalúrgica" e
 // "MetalFort".
 // ------------------------------------------------------------
-router.get("/", (req, res) => {
+router.get("/", (req: Request, res: Response) => {
   res.json({ data: clientes });
 });
 
@@ -22,8 +22,9 @@ router.get("/", (req, res) => {
 // com o total gasto por ele no final.
 // Esta rota está VAZIA — você vai construir do zero.
 // ------------------------------------------------------------
-router.get("/:id/pedidos", (req, res) => {
+router.get("/:id/pedidos", (req: Request, res: Response) => {
   // TODO: implementar
   res.status(501).json({ erro: "Não implementado ainda — TASK 7" });
 });
-module.exports = router;
+
+export default router;

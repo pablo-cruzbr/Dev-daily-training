@@ -15,8 +15,8 @@
 > **Setup inicial:**
 > ```bash
 > cd simulacao-trabalho
-> npm install express
-> node src/server.js
+> yarn install
+> yarn start
 > # Testa: http://localhost:3000/health
 > ```
 
@@ -27,7 +27,7 @@
 ---
 
 ### TASK 1 — Paginação na listagem de pedidos
-**Prioridade:** Alta | **Estimativa:** 2h | **Arquivo:** `src/routes/pedidos.routes.js`
+**Prioridade:** Alta | **Estimativa:** 2h | **Arquivo:** `src/routes/pedidos.routes.ts`
 
 **Como está:** `GET /pedidos` retorna os 40 pedidos de uma vez.
 
@@ -53,7 +53,7 @@
 ---
 
 ### TASK 2 — Filtro por status nos pedidos
-**Prioridade:** Alta | **Estimativa:** 1h | **Arquivo:** `src/routes/pedidos.routes.js`
+**Prioridade:** Alta | **Estimativa:** 1h | **Arquivo:** `src/routes/pedidos.routes.ts`
 
 **Como deve ficar:** `GET /pedidos?status=aprovado` retorna só os aprovados.
 **E atenção:** o filtro precisa funcionar JUNTO com a paginação da Task 1.
@@ -71,7 +71,7 @@ DEPOIS pagina. Se paginar antes de filtrar, os números saem errados.
 ---
 
 ### TASK 3 — Busca de clientes por nome
-**Prioridade:** Média | **Estimativa:** 1h | **Arquivo:** `src/routes/clientes.routes.js`
+**Prioridade:** Média | **Estimativa:** 1h | **Arquivo:** `src/routes/clientes.routes.ts`
 
 **Como deve ficar:** `GET /clientes?busca=metal` retorna "Metalúrgica São José"
 e "Indústria MetalFort".
@@ -94,7 +94,7 @@ e "Indústria MetalFort".
 ---
 
 ### TASK 4 — 🐛 BUG: Faturamento errado no relatório
-**Reportado por:** "Financeiro" | **Arquivo:** `src/routes/pedidos.routes.js`
+**Reportado por:** "Financeiro" | **Arquivo:** `src/routes/pedidos.routes.ts`
 
 **O chamado diz:**
 > "O faturamento total do relatório está maior do que deveria.
@@ -109,7 +109,7 @@ e "Indústria MetalFort".
 ---
 
 ### TASK 5 — 🐛 BUG: Servidor quebra ao buscar pedido inexistente
-**Reportado por:** "Time do frontend" | **Arquivo:** `src/routes/pedidos.routes.js`
+**Reportado por:** "Time do frontend" | **Arquivo:** `src/routes/pedidos.routes.ts`
 
 **O chamado diz:**
 > "Quando o dashboard tenta abrir um pedido que foi deletado,
@@ -127,7 +127,7 @@ sempre pergunte "e se não encontrar?"**
 ---
 
 ### TASK 6 — 🐛 BUG: Criação de pedido aceita dados inválidos
-**Reportado por:** "Coordenador" | **Arquivo:** `src/routes/pedidos.routes.js`
+**Reportado por:** "Coordenador" | **Arquivo:** `src/routes/pedidos.routes.ts`
 
 **O chamado diz:**
 > "Apareceu um pedido com quantidade NEGATIVA e outro sem cliente
@@ -143,7 +143,7 @@ sempre pergunte "e se não encontrar?"**
 ---
 
 ### TASK 8 — 🐛 BUG: Filtro de categoria não retorna nada
-**Reportado por:** "Vendas" | **Arquivo:** `src/routes/produtos.routes.js`
+**Reportado por:** "Vendas" | **Arquivo:** `src/routes/produtos.routes.ts`
 
 **O chamado diz:**
 > "O filtro de categoria parou de funcionar. /produtos?categoria=vigas
@@ -161,7 +161,7 @@ Acha, corrige, commita: `fix: category filter case comparison`
 ---
 
 ### TASK 7 — Pedidos por cliente (integração entre tabelas)
-**Prioridade:** Alta | **Estimativa:** 2h | **Arquivo:** `src/routes/clientes.routes.js`
+**Prioridade:** Alta | **Estimativa:** 2h | **Arquivo:** `src/routes/clientes.routes.ts`
 
 **A rota `GET /clientes/:id/pedidos` está vazia. Construir:**
 ```json
@@ -184,7 +184,7 @@ Acha, corrige, commita: `fix: category filter case comparison`
 ---
 
 ### TASK 9 — Alerta de estoque baixo
-**Prioridade:** Média | **Estimativa:** 1h30 | **Arquivo:** `src/routes/produtos.routes.js`
+**Prioridade:** Média | **Estimativa:** 1h30 | **Arquivo:** `src/routes/produtos.routes.ts`
 
 **Criar rota nova:** `GET /produtos/estoque-baixo?limiteKg=5000`
 
@@ -201,7 +201,7 @@ qualquer rota `/:id` no arquivo — senão o Express acha que
 ---
 
 ### TASK 10 — Dashboard resumo (a task "integradora")
-**Prioridade:** Alta | **Estimativa:** 3h | **Arquivo:** criar `src/routes/dashboard.routes.js`
+**Prioridade:** Alta | **Estimativa:** 3h | **Arquivo:** criar `src/routes/dashboard.routes.ts`
 
 **O coordenador pede:** "Preciso de um endpoint único que alimente os
 cards do topo do dashboard."
@@ -219,7 +219,7 @@ cards do topo do dashboard."
 ```
 
 **Critérios de aceite:**
-- [ ] Registrar a rota nova no `server.js` (você nunca fez isso aqui — descubra como)
+- [ ] Registrar a rota nova no `server.ts` (você nunca fez isso aqui — descubra como)
 - [ ] Faturamento exclui cancelados (de novo ela!)
 - [ ] `produtoMaisVendido` calculado pela SOMA de kg em todos os pedidos
 - [ ] `top3Clientes` ordenado do maior gasto pro menor

@@ -327,7 +327,7 @@ negativo põe `a` antes. Menor estoque primeiro = mais crítico no topo.
 
 ## TASK 10 — Dashboard resumo (a integradora)
 
-**1º passo — criar `src/routes/dashboard.routes.js`:**
+**1º passo — criar `src/routes/dashboard.routes.ts`:**
 
 ```javascript
 const express = require("express");
@@ -390,7 +390,7 @@ router.get("/resumo", (req, res) => {
 module.exports = router;
 ```
 
-**2º passo — registrar no `server.js`:**
+**2º passo — registrar no `server.ts`:**
 
 ```javascript
 const dashboardRoutes = require("./routes/dashboard.routes");

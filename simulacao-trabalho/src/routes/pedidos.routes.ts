@@ -4,9 +4,9 @@
 // Eles fazem parte das tasks — veja TASKS.md
 // ============================================================
 
-const express = require("express");
-const router = express.Router();
-const { pedidos, clientes, produtos } = require("../data/db");
+import express, { Request, Response, Router } from "express";
+const router: Router = express.Router();
+import { pedidos, clientes, produtos } from "../data/db";
 
 // ------------------------------------------------------------
 // GET /pedidos
@@ -14,7 +14,7 @@ const { pedidos, clientes, produtos } = require("../data/db");
 // TASK 1: adicionar paginação aqui (?page=1&limit=10)
 // TASK 2: adicionar filtro por status (?status=aprovado)
 // ------------------------------------------------------------
-router.get("/", (req, res) => {
+router.get("/", (req: Request, res: Response) => {
   res.json({ data: pedidos });
 });
 
@@ -25,9 +25,9 @@ router.get("/", (req, res) => {
 // soma do faturamento. Pedido cancelado NÃO deveria contar.
 // (TASK 4)
 // ------------------------------------------------------------
-router.get("/relatorio", (req, res) => {
+router.get("/relatorio", (req: Request, res: Response) => {
   let faturamentoTotal = 0;
-  const porStatus = {};
+  const porStatus: Record<string, number> = {};
 
   for (const pedido of pedidos) {
     faturamentoTotal += pedido.valorTotal;
@@ -47,11 +47,11 @@ router.get("/relatorio", (req, res) => {
 // com erro 500 em vez de retornar 404. Teste: /pedidos/999
 // (TASK 5)
 // ------------------------------------------------------------
-router.get("/:id", (req, res) => {
-  const pedido = pedidos.find((p) => p.id === Number(req.params.id));
+router.get("/:id", (req: Request, res: Response) => {
+  const pedido = pedidos.find((p) => p.id === Number(req.params.id))!;
 
-  const cliente = clientes.find((c) => c.id === pedido.clienteId);
-  const produto = produtos.find((p) => p.id === pedido.produtoId);
+  const cliente = clientes.find((c) => c.id === pedido.clienteId)!;
+  const produto = produtos.find((p) => p.id === pedido.produtoId)!;
 
   res.json({
     ...pedido,
@@ -67,7 +67,7 @@ router.get("/:id", (req, res) => {
 // clienteId, sem produtoId, com quantidade negativa...
 // (TASK 6)
 // ------------------------------------------------------------
-router.post("/", (req, res) => {
+router.post("/", (req: Request, res: Response) => {
   const { clienteId, produtoId, quantidadeKg } = req.body;
 
   const produto = produtos.find((p) => p.id === produtoId);
@@ -85,4 +85,4 @@ router.post("/", (req, res) => {
   res.status(201).json(novoPedido);
 });
 
-module.exports = router;
+export default router;

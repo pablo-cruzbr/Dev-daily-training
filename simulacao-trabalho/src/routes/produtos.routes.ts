@@ -2,9 +2,9 @@
 // ROTAS DE PRODUTOS
 // ============================================================
 
-const express = require("express");
-const router = express.Router();
-const { produtos } = require("../data/db");
+import express, { Request, Response, Router } from "express";
+const router: Router = express.Router();
+import { produtos } from "../data/db";
 
 // ------------------------------------------------------------
 // GET /produtos
@@ -13,12 +13,12 @@ const { produtos } = require("../data/db");
 // sutil de comparação. Teste: /produtos?categoria=vigas
 // deveria retornar 2 produtos, mas retorna 0. (TASK 8)
 // ------------------------------------------------------------
-router.get("/", (req, res) => {
+router.get("/", (req: Request, res: Response) => {
   const { categoria } = req.query;
 
   let resultado = produtos;
   if (categoria) {
-    resultado = produtos.filter((p) => p.categoria === categoria.trim().toUpperCase());
+    resultado = produtos.filter((p) => p.categoria === String(categoria).trim().toUpperCase());
   }
 
   res.json({ data: resultado });
@@ -32,4 +32,4 @@ router.get("/", (req, res) => {
 // ------------------------------------------------------------
 // (rota ainda não existe — você vai criar)
 
-module.exports = router;
+export default router;

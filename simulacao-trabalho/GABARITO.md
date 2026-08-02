@@ -12,8 +12,8 @@
 
 ## TASK 1 — Paginação
 
-```javascript
-router.get("/", (req, res) => {
+```typescript
+router.get("/", (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
@@ -39,8 +39,8 @@ router.get("/", (req, res) => {
 
 ## TASK 2 — Filtro por status (combinado com paginação)
 
-```javascript
-router.get("/", (req, res) => {
+```typescript
+router.get("/", (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const { status } = req.query;
@@ -74,14 +74,14 @@ o frontend precisa saber quantas páginas o resultado FILTRADO tem.
 
 ## TASK 3 — Busca de clientes por nome
 
-```javascript
-router.get("/", (req, res) => {
+```typescript
+router.get("/", (req: Request, res: Response) => {
   const { busca } = req.query;
 
   let resultado = clientes;
   if (busca) {
     resultado = clientes.filter((c) =>
-      c.nome.toLowerCase().includes(busca.toLowerCase())
+      c.nome.toLowerCase().includes(String(busca).toLowerCase())
     );
   }
 
@@ -99,10 +99,10 @@ qualquer posição do nome — busca parcial de graça.
 
 **A causa:** o loop soma TODOS os pedidos, sem verificar status.
 
-```javascript
-router.get("/relatorio", (req, res) => {
+```typescript
+router.get("/relatorio", (req: Request, res: Response) => {
   let faturamentoTotal = 0;
-  const porStatus = {};
+  const porStatus: Record<string, number> = {};
 
   for (const pedido of pedidos) {
     // continua registrando todos por status (isso está certo — 
@@ -139,8 +139,8 @@ se resolve trabalhando em CENTAVOS (inteiros) ou com libs tipo
 **A causa:** `find` retorna `undefined` quando não acha. A linha seguinte
 tenta ler `pedido.clienteId` de `undefined` → TypeError → erro 500.
 
-```javascript
-router.get("/:id", (req, res) => {
+```typescript
+router.get("/:id", (req: Request, res: Response) => {
   const pedido = pedidos.find((p) => p.id === Number(req.params.id));
 
   // A GUARDA — sempre pergunte "e se não encontrar?"
@@ -169,8 +169,8 @@ junior descuidado de código de junior confiável.
 
 ## TASK 6 — 🐛 Validação na criação de pedido
 
-```javascript
-router.post("/", (req, res) => {
+```typescript
+router.post("/", (req: Request, res: Response) => {
   const { clienteId, produtoId, quantidadeKg } = req.body;
 
   // Validação campo a campo, com mensagem específica
@@ -226,8 +226,8 @@ router.post("/", (req, res) => {
 
 ## TASK 7 — Pedidos por cliente (o "JOIN")
 
-```javascript
-router.get("/:id/pedidos", (req, res) => {
+```typescript
+router.get("/:id/pedidos", (req: Request, res: Response) => {
   const cliente = clientes.find((c) => c.id === Number(req.params.id));
 
   if (!cliente) {
@@ -270,14 +270,14 @@ Repare: as lições das tasks anteriores voltaram — o 404 da Task 5 e o
 estão em minúsculo (`"vigas"`), mas o filtro compara com `"VIGAS"`.
 Nunca vai bater.
 
-```javascript
-router.get("/", (req, res) => {
+```typescript
+router.get("/", (req: Request, res: Response) => {
   const { categoria } = req.query;
 
   let resultado = produtos;
   if (categoria) {
     resultado = produtos.filter(
-      (p) => p.categoria === categoria.trim().toLowerCase()
+      (p) => p.categoria === String(categoria).trim().toLowerCase()
     );
   }
 
@@ -287,7 +287,7 @@ router.get("/", (req, res) => {
 
 **Como achar bug assim em 2 minutos:** joga um `console.log` dentro do
 filter mostrando os dois lados da comparação:
-```javascript
+```typescript
 console.log(`banco: "${p.categoria}" vs query: "${categoria.trim().toUpperCase()}"`);
 // banco: "vigas" vs query: "VIGAS"  ← achou!
 ```
@@ -297,9 +297,9 @@ Bug de comparação quase sempre é case, espaço ou tipo (string "1" vs número
 
 ## TASK 9 — Alerta de estoque baixo
 
-```javascript
+```typescript
 // ⚠️ DECLARAR ANTES de qualquer rota /:id neste arquivo!
-router.get("/estoque-baixo", (req, res) => {
+router.get("/estoque-baixo", (req: Request, res: Response) => {
   const limiteKg = Number(req.query.limiteKg) || 5000;
 
   const emAlerta = produtos
@@ -329,12 +329,12 @@ negativo põe `a` antes. Menor estoque primeiro = mais crítico no topo.
 
 **1º passo — criar `src/routes/dashboard.routes.ts`:**
 
-```javascript
-const express = require("express");
-const router = express.Router();
-const { pedidos, clientes, produtos } = require("../data/db");
+```typescript
+import express, { Request, Response, Router } from "express";
+const router: Router = express.Router();
+import { pedidos, clientes, produtos } from "../data/db";
 
-router.get("/resumo", (req, res) => {
+router.get("/resumo", (req: Request, res: Response) => {
   // --- Faturamento (sem cancelados — sempre ela!)
   const pedidosValidos = pedidos.filter((p) => p.status !== "cancelado");
   const faturamentoMes = pedidosValidos.reduce((s, p) => s + p.valorTotal, 0);
@@ -347,11 +347,11 @@ router.get("/resumo", (req, res) => {
   const clientesAtivos = clientes.filter((c) => c.ativo).length;
 
   // --- Produto mais vendido (soma de kg por produto)
-  const kgPorProduto = {};
+  const kgPorProduto: Record<number, number> = {};
   for (const p of pedidosValidos) {
     kgPorProduto[p.produtoId] = (kgPorProduto[p.produtoId] || 0) + p.quantidadeKg;
   }
-  let maisVendidoId = null;
+  let maisVendidoId: number | null = null;
   let maisVendidoKg = 0;
   for (const [id, kg] of Object.entries(kgPorProduto)) {
     if (kg > maisVendidoKg) {
@@ -362,7 +362,7 @@ router.get("/resumo", (req, res) => {
   const prodMaisVendido = produtos.find((p) => p.id === maisVendidoId);
 
   // --- Top 3 clientes por gasto
-  const gastoPorCliente = {};
+  const gastoPorCliente: Record<number, number> = {};
   for (const p of pedidosValidos) {
     gastoPorCliente[p.clienteId] = (gastoPorCliente[p.clienteId] || 0) + p.valorTotal;
   }
@@ -387,13 +387,13 @@ router.get("/resumo", (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;
 ```
 
 **2º passo — registrar no `server.ts`:**
 
-```javascript
-const dashboardRoutes = require("./routes/dashboard.routes");
+```typescript
+import dashboardRoutes from "./routes/dashboard.routes";
 // ... junto com os outros app.use:
 app.use("/dashboard", dashboardRoutes);
 ```

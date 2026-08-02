@@ -57,6 +57,38 @@ um júnior fullstack — e são o tipo de prática que ajuda a evoluir de
 júnior pra pleno mais rápido, o que normalmente vem acompanhado de
 aumento salarial dentro do primeiro ano.
 
+## Minha situação: R$ 2.000 vs a faixa de mercado
+
+Meu primeiro salário vai ser **R$ 2.000/mês**. Comparando com as faixas
+acima:
+
+| Faixa | Valor | R$ 2.000 está... |
+|---|---|---|
+| Robert Half — CLT | R$ 4.000 – 6.500 | 50–69% abaixo |
+| Médias conservadoras (Trybe, Indeed) | R$ 2.300 – 4.000 | abaixo até da faixa mais baixa |
+
+**Leitura honesta:** R$ 2.000 fica abaixo até da estimativa mais
+conservadora que encontrei. Isso não significa que eu não mereço mais —
+significa que essa proposta específica está pesando outros fatores que
+não são só "domino essas tasks ou não": primeira experiência profissional
+sem CLT anterior no currículo, possível período de teste/adaptação,
+porte/momento da empresa, e poder de negociação de quem está entrando
+sem nenhum emprego formal anterior como comparação.
+
+**O que fazer com isso, na prática:**
+- Não é motivo pra desanimar — é o ponto de partida, não o teto. A
+  maioria dos júniores começa abaixo da média e sobe rápido nos
+  primeiros 6–12 meses se entregar bem.
+- Vale perguntar (ou já ter perguntado) se existe **revisão salarial
+  prevista** (3, 6 ou 12 meses) — isso é mais importante que o valor
+  de entrada.
+- Guarda evidência do que você entrega (como os commits deste próprio
+  repo) — isso é munição concreta pra pedir reajuste depois, em vez de
+  só "eu acho que mereço mais".
+- Se depois de 6 meses resolvendo tasks nesse nível (ou mais complexas)
+  o salário não se mover, aí sim é sinal de que vale procurar outra
+  proposta usando a faixa de mercado (R$ 4.000+) como referência.
+
 ## Fontes
 
 - [Salário de Desenvolvedor(a) Full-Stack Júnior — Robert Half](https://www.roberthalf.com/br/pt/vagas-detalhes/desenvolvedora-full-stack-junior)

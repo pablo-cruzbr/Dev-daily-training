@@ -2,20 +2,20 @@
 // SIMULAÇÃO DE TRABALHO — Backend estilo ERP (Aços Vital)
 // Pablo Cruz — Treino pré-01/08
 // ============================================================
-// Para rodar:  node src/server.js
+// Para rodar:  yarn start
 // Testa em:    http://localhost:3000
 // ============================================================
 
-const express = require("express");
-const pedidosRoutes = require("./routes/pedidos.routes");
-const clientesRoutes = require("./routes/clientes.routes");
-const produtosRoutes = require("./routes/produtos.routes");
+import express, { Request, Response } from "express";
+import pedidosRoutes from "./routes/pedidos.routes";
+import clientesRoutes from "./routes/clientes.routes";
+import produtosRoutes from "./routes/produtos.routes";
 
 const app = express();
 app.use(express.json());
 
 // Rota de saúde — sempre bom ter num sistema real
-app.get("/health", (req, res) => {
+app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 

@@ -10,12 +10,22 @@ import { pedidos, clientes, produtos } from "../data/db";
 
 // ------------------------------------------------------------
 // GET /pedidos
-// Lista todos os pedidos
-// TASK 1: adicionar paginação aqui (?page=1&limit=10)
+// Lista pedidos com paginação (?page=1&limit=10)
 // TASK 2: adicionar filtro por status (?status=aprovado)
 // ------------------------------------------------------------
 router.get("/", (req: Request, res: Response) => {
-  res.json({ data: pedidos });
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+
+  const skip = (page - 1) * limit;
+  const data = pedidos.slice(skip, skip + limit);
+
+  res.json({
+    data,
+    total: pedidos.length,
+    page,
+    totalPages: Math.ceil(pedidos.length / limit),
+  });
 });
 
 // ------------------------------------------------------------

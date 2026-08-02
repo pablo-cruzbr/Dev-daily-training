@@ -6,7 +6,7 @@
 yarn start
 ```
 
-(ou `node src/server.js` diretamente). Sobe em `http://localhost:3000`.
+(compila com `tsc` e roda `dist/server.js`). Sobe em `http://localhost:3000`.
 
 ## Testar no Yaak
 
@@ -19,7 +19,7 @@ yarn start
 | Método | Rota | Observação |
 |---|---|---|
 | GET | `/health` | healthcheck |
-| GET | `/pedidos` | lista pedidos |
+| GET | `/pedidos?page=1&limit=10` | lista pedidos paginada (padrão: page=1, limit=10) |
 | GET | `/pedidos/relatorio` | tem o bug do faturamento (TASK 4) |
 | GET | `/pedidos/:id` | ex: `/pedidos/999` quebra com 500 (TASK 5, bug proposital) |
 | POST | `/pedidos` | sem validação (TASK 6, bug proposital) |

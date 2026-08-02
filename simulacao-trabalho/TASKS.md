@@ -42,10 +42,10 @@
 ```
 
 **Critérios de aceite:**
-- [ ] Sem parâmetros → usa `page=1` e `limit=10` como padrão
-- [ ] `/pedidos?page=2&limit=10` retorna os pedidos 11 a 20
-- [ ] `/pedidos?page=99` retorna `data: []` (não quebra)
-- [ ] `totalPages` calculado com `Math.ceil(total / limit)`
+- [x] Sem parâmetros → usa `page=1` e `limit=10` como padrão
+- [x] `/pedidos?page=2&limit=10` retorna os pedidos 11 a 20
+- [x] `/pedidos?page=99` retorna `data: []` (não quebra)
+- [x] `totalPages` calculado com `Math.ceil(total / limit)`
 
 **Dica:** a fórmula é `skip = (page - 1) * limit`, e em array puro é
 `array.slice(skip, skip + limit)`.

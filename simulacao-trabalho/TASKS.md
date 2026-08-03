@@ -628,6 +628,30 @@ queries, índices) que vão aparecer todo santo dia no trabalho.
 
 ---
 
+### TASK 18 — Autenticação simples em rotas de escrita
+**Prioridade:** Alta | **Estimativa:** 2h | **Arquivo:** novo `src/middleware/auth.ts`
+
+**O problema:** hoje qualquer pessoa pode chamar `POST /pedidos` sem se
+identificar. Nenhum ERP de verdade permite isso.
+
+**O que fazer:** criar uma rota `POST /login` (bem simples — pode ser
+usuário/senha fixos por enquanto) que devolve um JWT (`jsonwebtoken`),
+e um middleware que exige esse token (`Authorization: Bearer ...`) nas
+rotas de escrita (`POST /pedidos`), devolvendo `401` sem token válido.
+
+**Critérios de aceite:**
+- [ ] `POST /login` devolve um token válido para credenciais corretas
+- [ ] `POST /pedidos` sem token → `401`
+- [ ] `POST /pedidos` com token válido → funciona normalmente
+- [ ] Segredo do JWT vem de variável de ambiente (lição da Task 13!)
+
+**Por que importa:** autenticação é o que separa "qualquer um pode
+alterar dados" de "só quem deveria pode alterar dados". Entender o fluxo
+básico de token (login → recebe token → manda token em cada chamada
+seguinte) é pré-requisito pra praticamente qualquer sistema com usuário.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

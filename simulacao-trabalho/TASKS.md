@@ -437,6 +437,51 @@ rápida pro usuário.
 
 ---
 
+## 🟣 SEMANA 3-4 — Rumo a Pleno (menos passo a passo, mais decisão sua)
+
+> As 10 primeiras tasks tinham critério de aceite bem fechado — quase
+> sempre existia UMA resposta certa. A partir daqui isso muda de
+> propósito: as tasks pedem menos "implemente X exatamente assim" e mais
+> "o sistema precisa disso, decida como". É exatamente essa mudança —
+> de "executar bem uma instrução clara" pra "tomar decisão técnica com
+> ambiguidade" — que separa júnior de pleno (ver
+> [`SALARIO.md`](SALARIO.md#níveis-de-senioridade-júnior--pleno--sênior)).
+>
+> **Por isso, de propósito, não existe gabarito completo pra essas 10.**
+> Tem dica de bibliotecas e de conceito, mas a decisão de como estruturar
+> é sua. Errar aqui, sozinho, e depois pesquisar o "jeito certo" é
+> literalmente o exercício.
+
+---
+
+### TASK 11 — Middleware de erro centralizado
+**Prioridade:** Alta | **Estimativa:** 1h30 | **Arquivo:** `src/server.ts`, novo `src/middleware/errorHandler.ts`
+
+**O problema:** hoje, se uma rota lançar um erro que ninguém previu, o
+Express devolve aquela página HTML feia de stack trace (você viu isso
+testando a Task 5 antes de corrigir). Isso nunca deveria chegar assim
+num cliente de API.
+
+**O que fazer:** criar um middleware de erro (Express reconhece pela
+assinatura `(err, req, res, next)` — 4 parâmetros) que captura qualquer
+erro não tratado e devolve sempre `{ "erro": "mensagem" }` com status
+500, registrado por último no `server.ts`.
+
+**Critérios de aceite:**
+- [ ] Erro não tratado em qualquer rota cai no middleware, não na tela padrão do Express
+- [ ] Resposta sempre no formato `{ "erro": "..." }`, nunca HTML
+- [ ] Middleware registrado DEPOIS de todas as rotas (ordem importa, de novo)
+
+**Dica:** pesquise "Express error handling middleware" — a assinatura de
+4 parâmetros é o que faz o Express tratar como error handler.
+
+**Por que importa:** um erro tratado de forma consistente em toda a API
+é a diferença entre um cliente da API conseguir reagir a falhas de
+verdade (ex: mostrar "algo deu errado, tenta de novo") ou travar
+mostrando lixo pro usuário.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

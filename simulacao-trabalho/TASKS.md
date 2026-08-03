@@ -509,6 +509,29 @@ júnior.
 
 ---
 
+### TASK 13 — Configuração via variável de ambiente
+**Prioridade:** Média | **Estimativa:** 45min | **Arquivo:** `src/server.ts`, novo `.env`
+
+**O problema:** a porta `3000` está hardcoded no `server.ts`. Em
+produção, geralmente quem decide a porta é o ambiente (Docker, servidor
+de deploy), não o código.
+
+**O que fazer:** instalar `dotenv`, criar um `.env` (com `PORT=3000`) e
+um `.env.example` (commitado, sem valor sensível — só documenta quais
+variáveis existem), e ler a porta de `process.env.PORT` com fallback.
+
+**Critérios de aceite:**
+- [ ] `.env` está no `.gitignore` (nunca commita segredo)
+- [ ] `.env.example` está commitado, documentando as variáveis esperadas
+- [ ] Servidor lê `PORT` do ambiente, com `3000` como padrão se não vier
+
+**Por que importa:** toda configuração que muda entre ambientes
+(dev/staging/produção) — porta, URL de banco, chave de API — deveria
+vir de variável de ambiente, nunca hardcoded. É assim que o MESMO
+código roda em ambientes diferentes sem precisar mudar uma linha.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

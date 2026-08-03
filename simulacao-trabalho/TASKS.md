@@ -579,6 +579,31 @@ sistema ir pro ar.
 
 ---
 
+### TASK 16 — Testes automatizados
+**Prioridade:** Alta | **Estimativa:** 2h30 | **Arquivo:** novo `src/routes/pedidos.routes.test.ts`
+
+**O problema:** até agora, "testar" significou abrir o Yaak e clicar.
+Isso não escala — ninguém revalida as 10 tasks anteriores na mão toda
+vez que muda uma linha de código.
+
+**O que fazer:** instalar `jest`, `ts-jest`/`@types/jest` e `supertest`,
+e escrever testes automatizados cobrindo pelo menos: paginação (Task
+1), o bug do 404 (Task 5, pra ele nunca voltar) e o bug do faturamento
+(Task 4, pelo mesmo motivo).
+
+**Critérios de aceite:**
+- [ ] `yarn test` roda os testes de verdade (troca o script placeholder do `package.json`)
+- [ ] Pelo menos 3 testes cobrindo os 3 cenários acima
+- [ ] Um teste falha de propósito (comente a correção da Task 5) pra você confirmar que o teste realmente pegaria a regressão
+
+**Por que importa:** teste automatizado é o que permite mexer no código
+com confiança meses depois, sem lembrar de todos os detalhes manuais.
+Bug que já foi corrigido uma vez e "voltou" (regressão) é uma das coisas
+mais frustrantes de debugar — teste automatizado existe pra isso nunca
+acontecer.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

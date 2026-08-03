@@ -744,6 +744,18 @@ Isso é literalmente o que você vai falar nas dailies a partir de 01/08.
 | 8 - Bug categoria | Bug | ⬜ | ⬜ | ⬜ |
 | 9 - Estoque baixo | Feature | ⬜ | ⬜ | ⬜ |
 | 10 - Dashboard | Feature | ⬜ | ⬜ | ⬜ |
+| 11 - Error handler | Refactor | ⬜ | ⬜ | ⬜ |
+| 12 - Camada de serviço | Refactor | ⬜ | ⬜ | ⬜ |
+| 13 - Variáveis de ambiente | Feature | ⬜ | ⬜ | ⬜ |
+| 14 - Logging | Feature | ⬜ | ⬜ | ⬜ |
+| 15 - Segurança básica | Feature | ⬜ | ⬜ | ⬜ |
+| 16 - Testes automatizados | Feature | ⬜ | ⬜ | ⬜ |
+| 17 - Persistência real | Feature | ⬜ | ⬜ | ⬜ |
+| 18 - Autenticação | Feature | ⬜ | ⬜ | ⬜ |
+| 19 - Docs OpenAPI | Feature | ⬜ | ⬜ | ⬜ |
+| 20 - Task ambígua | Feature | ⬜ | ⬜ | ⬜ |
 
 **Meta:** Tasks 1-6 na semana de 22/07. Tasks 7-10 na semana seguinte.
-Sobrou tempo? Refaz a Task 10 narrando em inglês (Think Out Loud).
+Tasks 11-20 (rumo a pleno) são o sprint extra, sem prazo fixo — o
+objetivo não é velocidade, é qualidade de decisão. Sobrou tempo depois
+das 10 primeiras? Refaz a Task 10 narrando em inglês (Think Out Loud).

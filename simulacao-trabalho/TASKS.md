@@ -532,6 +532,30 @@ código roda em ambientes diferentes sem precisar mudar uma linha.
 
 ---
 
+### TASK 14 — Logging estruturado
+**Prioridade:** Média | **Estimativa:** 1h | **Arquivo:** `src/server.ts` e rotas
+
+**O problema:** hoje o único log é o `console.log` de startup. Em
+produção, `console.log` sozinho não escala — não tem nível (info vs
+erro), não tem timestamp estruturado, não é fácil de filtrar.
+
+**O que fazer:** instalar um logger simples (`pino` é leve e rápido) e
+substituir os `console.log`/`console.error` por chamadas ao logger, com
+pelo menos um log de nível `info` por requisição (método + rota) e
+`error` quando o error handler da Task 11 for acionado.
+
+**Critérios de aceite:**
+- [ ] Logger configurado e usado no lugar de `console.log`
+- [ ] Toda requisição gera pelo menos um log de nível `info`
+- [ ] Todo erro capturado pelo error handler gera log de nível `error`
+
+**Por que importa:** quando algo dá errado em produção às 3h da manhã,
+log estruturado (com nível, timestamp, contexto) é o que permite
+investigar sem precisar reproduzir o bug ao vivo. `console.log` espalhado
+não segura um sistema em produção por muito tempo.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

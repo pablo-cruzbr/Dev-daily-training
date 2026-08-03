@@ -652,6 +652,29 @@ seguinte) é pré-requisito pra praticamente qualquer sistema com usuário.
 
 ---
 
+### TASK 19 — Documentação da API (OpenAPI/Swagger)
+**Prioridade:** Média | **Estimativa:** 2h | **Arquivo:** novo `src/docs/`, `server.ts`
+
+**O problema:** hoje a única documentação da API é o `API.md` escrito
+à mão — funciona pra você, mas não é um formato que ferramentas (Yaak,
+Postman, frontend gerando client automático) conseguem ler.
+
+**O que fazer:** instalar `swagger-jsdoc` + `swagger-ui-express`,
+documentar pelo menos as rotas de `pedidos` com anotações OpenAPI, e
+servir a documentação interativa em `/docs`.
+
+**Critérios de aceite:**
+- [ ] `/docs` abre uma interface Swagger navegável no navegador
+- [ ] Pelo menos as rotas de `pedidos` documentadas (parâmetros, respostas, status possíveis)
+- [ ] Alguém que nunca viu o projeto consegue entender o que a API faz só olhando `/docs`
+
+**Por que importa:** documentação que fica desatualizada rápido (como
+texto solto) é pior que não ter nenhuma. Documentação gerada a partir de
+anotações no próprio código tende a ficar mais perto da realidade, e
+ferramentas conseguem importar isso automaticamente pra testar.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

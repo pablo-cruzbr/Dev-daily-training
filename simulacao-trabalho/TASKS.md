@@ -482,6 +482,33 @@ mostrando lixo pro usuário.
 
 ---
 
+### TASK 12 — Camada de serviço (separar regra de negócio da rota)
+**Prioridade:** Média | **Estimativa:** 2h | **Arquivo:** novo `src/services/pedidos.service.ts`
+
+**O problema:** hoje toda a lógica (validar, calcular, filtrar) vive
+dentro da função da rota, misturada com `req`/`res`. Isso funciona com
+10 rotas; fica insustentável com 100.
+
+**O que fazer:** extrair a lógica de `pedidos.routes.ts` pra funções
+puras em `pedidos.service.ts` (ex: `listarPaginado(page, limit)`,
+`buscarPorId(id)`, `criar(dados)`) que não sabem nada de Express — só
+recebem dados e devolvem dados. A rota vira só "traduzir HTTP pra
+chamada de função e devolver resultado".
+
+**Critérios de aceite:**
+- [ ] Nenhuma função em `pedidos.service.ts` recebe `req` ou `res`
+- [ ] As rotas em `pedidos.routes.ts` ficam com poucas linhas cada, só orquestrando
+- [ ] Todos os testes manuais no Yaak continuam passando depois do refactor
+
+**Por que importa:** essa separação (rota fina, service com a regra) é
+o que permite testar a lógica de negócio SEM precisar simular uma
+requisição HTTP inteira, e é o que permite reusar a mesma lógica em
+outro contexto (ex: um job agendado que roda sem passar por rota
+nenhuma). É um dos refactors mais comuns que pleno propõe em PR de
+júnior.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

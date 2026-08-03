@@ -96,6 +96,25 @@ que todo backend real precisa ter — é praticamente checklist de
 **⚠️ Pegadinha real de trabalho:** a ordem importa — primeiro filtra,
 DEPOIS pagina. Se paginar antes de filtrar, os números saem errados.
 
+**Por que filtro importa:** sem filtro no backend, o frontend precisaria
+baixar TODOS os pedidos e filtrar na mão no navegador — desperdiça banda
+e ainda deixa a "regra de negócio" (o que é um status válido, por
+exemplo) espalhada em dois lugares em vez de um só. Filtro no backend é
+o que permite o frontend pedir exatamente o que precisa.
+
+**Boas práticas que valem a pena guardar:**
+- **Combine filtro com paginação sempre na mesma ordem** (filtrar →
+  contar → paginar) — é a fonte nº1 de bug de "número errado" em APIs
+  com lista.
+- Em banco de dados de verdade, colunas usadas em filtro frequente (como
+  `status`) costumam ganhar um **índice** — sem índice, filtrar vira
+  varrer a tabela inteira toda vez, o que fica lento conforme a tabela
+  cresce.
+- **Não confie cegamente no valor que vem da query.** Aqui um status
+  inválido só devolve lista vazia (ok pra esse caso), mas em sistemas
+  mais rígidos você valida contra uma lista fixa de valores permitidos
+  antes de usar no filtro.
+
 ---
 
 ### TASK 3 — Busca de clientes por nome
@@ -110,6 +129,25 @@ e "Indústria MetalFort".
 - [ ] Sem o parâmetro → lista todos
 
 **Dica:** `nome.toLowerCase().includes(busca.toLowerCase())`
+
+**Por que busca importa:** é a diferença entre um usuário achar o que
+precisa em 2 segundos ou desistir do sistema. Ninguém decora o nome
+completo e exato de um cliente numa lista com centenas deles — busca
+parcial e sem distinguir maiúscula/minúscula é o mínimo esperado hoje
+em dia em qualquer sistema com lista de itens.
+
+**Boas práticas que valem a pena guardar:**
+- Em banco de dados de verdade, um `LIKE '%termo%'` (equivalente ao
+  `includes` daqui) com `%` no início costuma **não usar índice** —
+  fica lento em tabelas grandes. É por isso que sistemas de busca sérios
+  usam ferramentas dedicadas (Elasticsearch, Postgres full-text search)
+  em vez de `LIKE` puro.
+- No frontend, busca "ao vivo" (a cada tecla digitada) normalmente usa
+  **debounce** — espera a pessoa parar de digitar por ~300ms antes de
+  chamar a API, senão cada letra digitada dispara uma requisição.
+- Nunca monte a busca concatenando texto direto numa query SQL — isso é
+  a porta de entrada clássica pra **SQL injection**. Sempre use
+  parâmetros/placeholders da biblioteca do banco.
 
 ---
 
@@ -134,6 +172,27 @@ e "Indústria MetalFort".
 3. Corrige (pedido cancelado não é faturamento!)
 4. Commit: `fix: exclude cancelled orders from revenue report`
 
+**Por que esse tipo de bug importa mais que os outros:** é dinheiro.
+Bug visual o usuário reclama e você conserta com calma; bug de número
+financeiro errado vira reunião com o financeiro, relatório incorreto
+pro chefe, decisão de negócio tomada em cima de dado errado. Código que
+mexe com dinheiro merece atenção redobrada, sempre.
+
+**Boas práticas que valem a pena guardar:**
+- **Todo total "geral" deveria ter um teste automatizado** cobrindo o
+  caso de exclusão (aqui: cancelado não conta). Bug financeiro é
+  exatamente o tipo de coisa que um teste simples pega antes de ir pro
+  ar — e ninguém percebe até o financeiro reclamar, como no chamado.
+  Ver [`CONCEITOS.md`](CONCEITOS.md) pra entender a lógica; testes
+  automatizados ainda não fazem parte deste sprint, mas é o próximo
+  passo natural.
+- Ao mexer em cálculo financeiro, sempre **compare o total com a soma
+  das partes** manualmente pelo menos uma vez — foi assim que este bug
+  foi descrito no chamado.
+- Números financeiros pedem cuidado extra com ponto flutuante (o bônus
+  do `GABARITO.md` fala mais sobre isso) — considere centavos como
+  inteiro em sistemas reais.
+
 ---
 
 ### TASK 5 — 🐛 BUG: Servidor quebra ao buscar pedido inexistente
@@ -152,6 +211,23 @@ e "Indústria MetalFort".
 **Esse é O bug mais clássico de junior deixar passar. Grava a lição:
 sempre pergunte "e se não encontrar?"**
 
+**Por que isso importa tanto:** um erro 500 não avisado é o pior tipo de
+falha — ele não diz o que deu errado, assusta o usuário, e em produção
+geralmente dispara alerta de monitoramento no meio da madrugada. Um 404
+bem tratado, por outro lado, é informação: "não existe", ponto, o
+frontend sabe exatamente o que fazer (mostrar "pedido não encontrado").
+
+**Boas práticas que valem a pena guardar:**
+- **Guard clause é hábito, não decoração.** Todo `find`/busca que pode
+  não achar nada precisa dessa pergunta antes de usar o resultado —
+  vira reflexo depois de um tempo.
+- Times sérios têm um **formato padrão de erro** pra API inteira (ex:
+  sempre `{ "erro": "mensagem" }`), pra o frontend não precisar tratar
+  cada rota de um jeito diferente.
+- Em produção, erros 500 de verdade (bugs que você não previu) devem
+  aparecer em ferramentas de monitoramento (Sentry, Datadog...) — nunca
+  devem vazar o stack trace inteiro pro usuário final, por segurança.
+
 ---
 
 ### TASK 6 — 🐛 BUG: Criação de pedido aceita dados inválidos
@@ -168,6 +244,29 @@ sempre pergunte "e se não encontrar?"**
 - [ ] Qualquer violação → `400` com mensagem clara de QUAL campo falhou
 4. Commit: `fix: add validation to order creation`
 
+**Por que validação importa:** todo dado que entra vindo de fora (POST,
+formulário, upload, API de terceiro) é, por padrão, **não confiável** —
+o cliente pode ter bug, o usuário pode digitar errado, ou alguém pode
+estar tentando quebrar seu sistema de propósito. "Garbage in, garbage
+out": se você deixa dado ruim entrar, ele contamina relatórios,
+quebra outras rotas que assumem que o dado é válido, e vira dívida
+técnica difícil de limpar depois.
+
+**Boas práticas que valem a pena guardar:**
+- **Valide na fronteira do sistema** (assim que o dado chega), não
+  espalhado em vários lugares depois.
+- **Nunca confie só na validação do frontend.** Frontend valida pra dar
+  boa experiência (feedback rápido); backend valida pra proteger o
+  sistema — são objetivos diferentes, e qualquer um pode chamar sua API
+  direto, pulando o frontend.
+- Em projetos reais, é comum usar bibliotecas de **schema validation**
+  (Zod, Joi, Yup) em vez de escrever cada `if` na mão — elas centralizam
+  a regra num único lugar declarativo e já geram mensagens de erro
+  consistentes.
+- Mensagem de erro específica por campo não é luxo — é o que permite o
+  frontend (ou você, testando no Yaak) saber exatamente o que corrigir
+  sem adivinhar.
+
 ---
 
 ### TASK 8 — 🐛 BUG: Filtro de categoria não retorna nada
@@ -181,6 +280,25 @@ sempre pergunte "e se não encontrar?"**
 Acha, corrige, commita: `fix: category filter case comparison`
 
 **Lição real:** bugs de produção raramente são complexos. São detalhes.
+
+**Por que esse tipo de bug importa:** é o exemplo perfeito de que
+"funciona no meu teste" não significa "está correto" — o código rodava
+sem erro nenhum, só devolvia resultado errado silenciosamente. Bug
+silencioso é mais perigoso que bug que quebra na hora, porque pode ficar
+em produção por semanas sem ninguém perceber, até alguém (como o time
+de Vendas aqui) notar que os números não fazem sentido.
+
+**Boas práticas que valem a pena guardar:**
+- Comparações de texto vindas de input externo quase sempre merecem
+  **normalização** (mesma caixa, sem espaço nas pontas) dos dois lados,
+  não só de um.
+- Decida uma convenção pro seu banco de dados (ex: "categorias sempre em
+  minúsculo") e documente isso — muita confusão desse tipo vem de não
+  ter uma convenção clara desde o início.
+- Um teste automatizado simples (`categoria=vigas` deveria devolver 2
+  itens) teria pego esse bug antes de qualquer usuário perceber — é
+  o tipo de caso que vale a pena cobrir com teste, exatamente por ser
+  fácil de errar de novo no futuro.
 
 ---
 
@@ -209,6 +327,28 @@ Acha, corrige, commita: `fix: category filter case comparison`
 
 **Isso simula JOIN entre tabelas — o dia a dia de dashboard com ERP.**
 
+**Por que isso importa:** quase todo dado interessante pra usuário final
+vem de **combinar** informação de mais de um lugar — aqui é pedido +
+cliente + produto; em qualquer sistema real é a mesma ideia (pedido +
+usuário + endereço + pagamento...). Fazer essa combinação corretamente,
+sem duplicar dado nem perder registro, é uma das habilidades mais usadas
+no dia a dia de backend.
+
+**Boas práticas que valem a pena guardar:**
+- Faça essa agregação **no backend, não no frontend.** O frontend não
+  deveria precisar buscar pedidos, depois buscar cada produto um por um,
+  e juntar tudo na tela — é mais lento, mais requisições, e espalha
+  lógica de negócio pro lado errado.
+- Em bancos de dados de verdade (SQL), isso é literalmente um `JOIN` —
+  o que você fez aqui com `filter` + `map` é a versão "na mão" da mesma
+  ideia, usando arrays em memória em vez de tabelas.
+- Cuidado com o problema clássico de performance chamado **N+1
+  queries**: se cada pedido disparasse uma query separada pro banco pra
+  buscar o produto (em vez de já ter os dados carregados, como aqui),
+  100 pedidos virariam 101 queries. Ferramentas de ORM (Prisma,
+  TypeORM) têm formas de evitar isso (`include`, `join`, `eager
+  loading`) — vale pesquisar quando for trabalhar com banco real.
+
 ---
 
 ### TASK 9 — Alerta de estoque baixo
@@ -225,6 +365,24 @@ Acha, corrige, commita: `fix: category filter case comparison`
 **⚠️ Pegadinha de rota:** essa rota precisa ser declarada ANTES de
 qualquer rota `/:id` no arquivo — senão o Express acha que
 "estoque-baixo" é um id! (Esse erro acontece MUITO em time real.)
+
+**Por que essa task importa:** é um alerta operacional — o time de
+compras/estoque precisa saber ANTES do produto acabar, não depois. Uma
+rota assim, bem simples, evita prejuízo real (venda perdida por falta de
+material, cliente insatisfeito). É um bom exemplo de como uma feature
+pequena de backend pode ter impacto direto no negócio.
+
+**Boas práticas que valem a pena guardar:**
+- **Ordem de rotas em Express (e frameworks parecidos) importa.** É uma
+  fonte de bug tão comum que vale revisar toda vez que você adiciona uma
+  rota nova num arquivo que já tem `/:algumParametro`.
+- Alertas baseados em "limite configurável" (aqui, `limiteKg`) são mais
+  flexíveis que valor fixo no código — o time de negócio muda de ideia
+  sobre o que é "estoque baixo" com frequência, e não deveria precisar
+  de um deploy pra isso.
+- Em sistemas reais, esse tipo de alerta às vezes vira uma
+  **notificação automática** (email, Slack) rodando em um job agendado,
+  em vez de esperar alguém abrir a tela pra descobrir.
 
 ---
 
@@ -254,6 +412,28 @@ cards do topo do dashboard."
 
 **Essa task junta TUDO: filter, reduce, sort, integração de dados.
 Se você fizer essa sozinho, está pronto pro trabalho. Sério.**
+
+**Por que essa task importa:** um endpoint único de "resumo" é o padrão
+chamado **BFF** (*Backend For Frontend*) — em vez do frontend fazer 5
+chamadas separadas (pedidos, clientes, produtos...) e juntar tudo na
+tela, o backend já entrega pronto o formato exato que a tela precisa.
+Menos requisições, menos lógica duplicada no frontend, resposta mais
+rápida pro usuário.
+
+**Boas práticas que valem a pena guardar:**
+- Endpoints de "resumo"/dashboard tendem a ficar **caros de calcular**
+  conforme os dados crescem (aqui é só um loop em 40 pedidos; imagine
+  isso rodando a cada request com 2 milhões de linhas). Em sistemas
+  reais, esse tipo de agregação costuma ser **pré-calculada** (job
+  agendado, tabela de cache, "materialized view" no banco) em vez de
+  recalculada do zero a cada chamada.
+- Manter o **formato de resposta estável** importa mais aqui do que em
+  qualquer outra rota — várias partes da tela do frontend dependem
+  exatamente dessa estrutura; mudar um nome de campo sem avisar quebra
+  a tela de quem consome.
+- Registrar a rota nova no `server.ts` é um passo fácil de esquecer — e
+  é exatamente o tipo de erro bobo que checklist de PR/code review
+  existe pra pegar antes de ir pra produção.
 
 ---
 

@@ -50,6 +50,34 @@
 **Dica:** a fórmula é `skip = (page - 1) * limit`, e em array puro é
 `array.slice(skip, skip + limit)`.
 
+**Por que paginação importa (e não é só "frescura de sistema grande"):**
+sem ela, cada chamada em `/pedidos` devolve a tabela inteira — hoje são
+40 pedidos, mas em produção podem ser 2 milhões. Isso pesa em três
+lugares ao mesmo tempo: o **banco de dados** sofre pra buscar tudo de
+uma vez, a **rede** trafega um payload gigante desnecessário, e o
+**frontend** trava tentando renderizar uma lista enorme na tela (ninguém
+rola 2 milhões de linhas mesmo). Paginação é uma das primeiras coisas
+que todo backend real precisa ter — é praticamente checklist de
+"vaga júnior pronta pra produção".
+
+**Boas práticas que valem a pena guardar:**
+- **Sempre ter um limite padrão** (aqui, `limit=10`) — nunca confiar que
+  o cliente da API vai mandar o parâmetro certo.
+- **Colocar um teto no `limit`** (ex: recusar ou truncar se alguém pedir
+  `?limit=999999`) — senão a paginação vira decorativa, porque um cliente
+  mal-intencionado ou descuidado pode pedir "tudo de uma vez" mesmo assim.
+  Esse projeto não implementa esse teto de propósito — é um bom próximo
+  passo pra você pensar depois de terminar as 10 tasks.
+- **Devolver metadados** (`total`, `page`, `totalPages`) junto dos dados
+  — sem isso o frontend não sabe se existe próxima página, nem consegue
+  montar os botões de navegação.
+- Esse modelo aqui (`page`/`limit`, chamado de **offset pagination**) é
+  o mais simples de implementar, mas em tabelas gigantes e que mudam
+  muito (feed de rede social, por exemplo) empresas costumam usar
+  **cursor pagination** (baseada num "ponteiro" pro último item visto,
+  não em número de página) — mais rápido em escala grande, mas mais
+  complexo. Não precisa disso agora; é só pra você já ouvir o termo.
+
 ---
 
 ### TASK 2 — Filtro por status nos pedidos

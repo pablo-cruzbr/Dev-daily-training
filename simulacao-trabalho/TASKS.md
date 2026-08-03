@@ -604,6 +604,30 @@ acontecer.
 
 ---
 
+### TASK 17 — Persistência real (sair do array em memória)
+**Prioridade:** Alta | **Estimativa:** 3h | **Arquivo:** novo `src/data/`, todo o projeto
+
+**O problema:** todo dado hoje vive em array na memória — reinicia o
+servidor, perde tudo. Nenhum sistema real funciona assim.
+
+**O que fazer:** migrar pelo menos a tabela de `pedidos` pra um banco
+de verdade. `SQLite` (via `better-sqlite3` ou `Prisma`) é a opção mais
+simples pra treinar sem precisar instalar um banco separado na máquina.
+Decida você: ORM (Prisma, mais guiado) ou driver direto (mais manual,
+mais entendimento do SQL por baixo).
+
+**Critérios de aceite:**
+- [ ] Pedidos sobrevivem a um restart do servidor
+- [ ] `GET /pedidos` com paginação continua funcionando (agora com `LIMIT`/`OFFSET` de SQL de verdade, se for esse o caminho)
+- [ ] Decisão de ORM vs driver direto documentada em 2-3 frases no PR
+
+**Por que importa:** é o salto mais "real" de todo esse sprint extra —
+todo o resto até aqui foi lógica em memória; a partir daqui você lida
+com os problemas de verdade de banco de dados (schema, migração,
+queries, índices) que vão aparecer todo santo dia no trabalho.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

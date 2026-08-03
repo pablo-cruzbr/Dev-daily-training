@@ -675,6 +675,45 @@ ferramentas conseguem importar isso automaticamente pra testar.
 
 ---
 
+### TASK 20 — A task ambígua (o teste de pleno de verdade)
+**Prioridade:** Alta | **Estimativa:** aberta | **Arquivo:** sua decisão
+
+**O pedido do "coordenador", literalmente como chegaria numa reunião:**
+> "Precisamos conseguir tirar um relatório dos pedidos pra mandar pro
+> financeiro. Dá pra fazer isso?"
+
+Só isso. De propósito, não tem formato de resposta, nem critério de
+aceite pronto, nem arquivo indicado.
+
+**O que fazer:**
+1. Antes de codar, escreva (não precisa mandar pra ninguém, é treino)
+   as perguntas que você faria de verdade nessa reunião: formato do
+   relatório (CSV? PDF? JSON pra outro sistema ler?), período (todo
+   histórico? por mês?), quem vai consumir isso (humano abrindo Excel?
+   outro sistema automatizado?), com que frequência.
+2. Baseado nas respostas que você mesmo imaginaria (seja realista, pense
+   como o "Financeiro" dos chamados anteriores pensaria), decida um
+   escopo razoável — não precisa resolver todos os casos possíveis, só
+   o caso mais provável.
+3. Implemente, documente sua decisão (por que esse formato, o que ficou
+   de fora de propósito) em um arquivo curto (`docs/decisao-task-20.md`
+   ou similar — isso é o começo de um **ADR**, *Architecture Decision
+   Record*, prática comum em times de verdade).
+4. Escreva os critérios de aceite QUE VOCÊ MESMO definiu, e valide seu
+   próprio código contra eles.
+
+**Por que essa task é a mais importante do sprint inteiro:** tudo até
+aqui teve resposta certa esperando por você. No trabalho real, boa parte
+dos pedidos chega exatamente assim — vago, incompleto, dito de passagem
+numa reunião. Pleno não é "sabe mais sintaxe" — é **saber transformar um
+pedido vago em escopo concreto sozinho**, e comunicar a decisão de um
+jeito que outra pessoa entenda o porquê. Se você conseguir fazer essa
+task fazendo boas perguntas (mesmo que só pra você mesmo) antes de
+codar, você já está operando como pleno nesse aspecto específico —
+mesmo que ainda esteja aprendendo sintaxe nas outras tasks.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale

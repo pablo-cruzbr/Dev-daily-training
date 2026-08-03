@@ -1,11 +1,17 @@
-# 🔑 GABARITO — Soluções das 10 Tasks
+# 🔑 GABARITO — Soluções das 10 Tasks (versão explicada)
+
 ## ⚠️ REGRA DE OURO: só abre este arquivo DEPOIS de tentar por pelo menos 1 hora
 
 > No trabalho real não existe gabarito. Existe tentar, pesquisar, e aí sim
 > perguntar. Usa este arquivo como o "colega sênior" que você consulta
 > depois de tentar — não como atalho.
 >
-> **Como usar:** cada solução tem o código + a explicação do PORQUÊ.
+> **Como usar:** cada solução tem o código + um **passo a passo** linha
+> por linha + as perguntas "e se eu não tivesse feito isso?". Se algum
+> termo não fizer sentido (`query`, `find`, `reduce`...), para e vai no
+> [`CONCEITOS.md`](CONCEITOS.md) primeiro — ele é o dicionário, este
+> arquivo é o exemplo aplicado.
+>
 > Depois de ler, apaga sua versão e refaz sem olhar. Se sair, você aprendeu.
 
 ---
@@ -29,11 +35,31 @@ router.get("/", (req: Request, res: Response) => {
 });
 ```
 
-**Por que funciona:**
-- `Number(...) || 1` converte o texto da query pra número E define padrão se vier vazio ou inválido (NaN é falsy)
-- `skip = (page - 1) * limit`: página 1 pula 0, página 2 pula 10, página 3 pula 20
-- `slice(skip, skip + limit)` corta o pedaço certo do array — e se passar do fim, retorna `[]` sozinho, sem quebrar (por isso `page=99` já funciona de graça)
-- `Math.ceil` arredonda pra cima: 40 pedidos ÷ 10 = 4 páginas; 41 ÷ 10 = 4.1 → 5 páginas
+### Passo a passo
+
+1. **`Number(req.query.page) || 1`** — `req.query.page` chega como texto
+   (ex: `"2"`), então converto pra número. Se não veio nada, `Number(undefined)`
+   dá `NaN`, que é "falsy", e o `||` cai pro valor padrão `1`. (Ver
+   [CONCEITOS.md §1 e §2](CONCEITOS.md#1-onde-cada-dado-chega-numa-requisição).)
+2. **`skip = (page - 1) * limit`** — a fórmula que traduz "página" em
+   "posição no array". Testa na mão: página 1 → `(1-1)*10 = 0` (não pula
+   nada); página 3 → `(3-1)*10 = 20` (pula os 20 primeiros).
+3. **`pedidos.slice(skip, skip + limit)`** — corta o array de `skip` até
+   `skip + limit`. `slice` nunca quebra: se você pedir um pedaço que não
+   existe (ex: `skip = 990` num array de 40 itens), ele só devolve `[]`.
+   Isso já resolve sozinho o critério "página 99 não quebra".
+4. **`Math.ceil(pedidos.length / limit)`** — arredonda pra cima. 40 ÷ 10 =
+   4.0 → 4 páginas certinho. 41 ÷ 10 = 4.1 → `Math.ceil` dá 5, porque o
+   pedido 41 sozinho já ocupa uma página inteira.
+
+### E se eu não tivesse feito isso?
+
+- Sem o `|| 1` / `|| 10`: chamar `/pedidos` sem parâmetros geraria
+  `skip = NaN`, e `slice(NaN, NaN)` devolve um array vazio — pareceria bug
+  de "não retorna nada" sem mensagem de erro nenhuma.
+- Sem `Math.ceil` (usando divisão direta): 41 pedidos com limit 10 diria
+  "4.1 páginas", o que não significa nada pro frontend montar botões de
+  paginação.
 
 ---
 
@@ -64,11 +90,33 @@ router.get("/", (req: Request, res: Response) => {
 });
 ```
 
-**A pegadinha explicada:** se você paginar primeiro e filtrar depois,
-a página 1 pode vir com 3 itens em vez de 10 (você filtrou só o pedaço
-que tinha cortado). A ordem certa é sempre: **filtrar → contar → paginar**.
-Repare também que `total` usa `resultado.length`, não `pedidos.length` —
-o frontend precisa saber quantas páginas o resultado FILTRADO tem.
+### Passo a passo
+
+1. Começo com `resultado = pedidos` (todos). Se `status` veio na query,
+   troco `resultado` pelo array já filtrado com
+   [`filter`](CONCEITOS.md#3-os-métodos-de-array-que-resolvem-quase-tudo).
+2. **Só depois** de filtrar eu calculo `skip` e corto com `slice`. A
+   paginação roda em cima do `resultado` (filtrado), nunca do `pedidos`
+   original.
+3. `total` e `totalPages` também usam `resultado.length`, não
+   `pedidos.length` — porque o frontend precisa saber quantas páginas
+   existem **dentro do filtro aplicado**, não do total geral do sistema.
+
+### A pegadinha, explicada devagar
+
+Se você inverter a ordem — paginar primeiro, filtrar depois — acontece
+isto: pega os 10 primeiros pedidos (sem olhar status), e SÓ DEPOIS filtra
+por `status=aprovado` dentro desses 10. Se só 3 deles forem aprovados, a
+resposta vem com 3 itens em vez de 10, mesmo que existam mais aprovados
+nas páginas seguintes. A regra fica gravada assim:
+
+**filtrar → contar → paginar** (sempre nessa ordem).
+
+### E se eu não tivesse feito isso?
+
+- Sem o `if (status)`: toda chamada, mesmo sem `?status=`, tentaria
+  filtrar por `undefined`, e nenhum pedido teria `status === undefined`
+  → a lista sempre viria vazia.
 
 ---
 
@@ -89,15 +137,33 @@ router.get("/", (req: Request, res: Response) => {
 });
 ```
 
-**Por que funciona:** jogando os DOIS lados pra minúsculo, "METAL",
-"metal" e "Metal" viram a mesma coisa. `includes` acha o pedaço em
-qualquer posição do nome — busca parcial de graça.
+### Passo a passo
+
+1. Pego `busca` da query string (texto que o usuário digitou).
+2. `c.nome.toLowerCase()` — transformo o nome do cliente pra minúsculo.
+3. `String(busca).toLowerCase()` — transformo o texto buscado pra
+   minúsculo também. **Os dois lados** precisam estar no mesmo formato,
+   senão `"Metal" === "metal"` seria `false`.
+4. `.includes(...)` — verifica se o texto buscado aparece em QUALQUER
+   posição do nome (não precisa ser no início). É isso que faz "metal"
+   achar "Metalúrgica São José" (começa com) e "Indústria MetalFort"
+   (está no meio).
+
+### E se eu não tivesse feito isso?
+
+- Sem os dois `.toLowerCase()`: buscar "metal" minúsculo não acharia
+  "Metalúrgica" (que começa com M maiúsculo) — o usuário digitando
+  errado de caixa não acharia nada, experiência ruim.
+- Usando `===` no lugar de `.includes()`: só acharia nome EXATO, não
+  busca parcial — "metal" nunca acharia "Metalúrgica São José".
 
 ---
 
 ## TASK 4 — 🐛 Bug do faturamento (cancelados somando)
 
-**A causa:** o loop soma TODOS os pedidos, sem verificar status.
+**A causa:** o loop original somava `pedido.valorTotal` de TODOS os
+pedidos no `faturamentoTotal`, sem checar o `status`. Um pedido cancelado
+não devia contar como faturamento — é dinheiro que não entrou.
 
 ```typescript
 router.get("/relatorio", (req: Request, res: Response) => {
@@ -105,7 +171,7 @@ router.get("/relatorio", (req: Request, res: Response) => {
   const porStatus: Record<string, number> = {};
 
   for (const pedido of pedidos) {
-    // continua registrando todos por status (isso está certo — 
+    // continua registrando todos por status (isso está certo —
     // o gestor QUER ver quanto foi cancelado)
     porStatus[pedido.status] = (porStatus[pedido.status] || 0) + pedido.valorTotal;
 
@@ -122,22 +188,47 @@ router.get("/relatorio", (req: Request, res: Response) => {
 });
 ```
 
-**Como você deveria ter achado:** o `porStatus` da resposta original JÁ
-entregava o jogo — mostrava `cancelado: 101423.79` e o total batia com a
-soma de TUDO. Comparar o total com a soma das partes é o jeito clássico
-de achar esse tipo de bug.
+### Passo a passo
 
-**Bônus (o 79145.40000000001):** viu números quebrados no JSON? É o
-problema de ponto flutuante do JavaScript. Em sistema financeiro real
-se resolve trabalhando em CENTAVOS (inteiros) ou com libs tipo
-`decimal.js`. Guarda essa — impressiona em entrevista.
+1. `porStatus` é um objeto acumulador — pra cada `status` diferente,
+   guarda a soma de `valorTotal` daquele grupo. Esse objeto continua
+   somando TUDO, inclusive cancelado, porque o gestor quer ver esse
+   número separado (é útil saber quanto foi cancelado).
+2. O `if (pedido.status !== "cancelado")` é a correção: só soma no
+   `faturamentoTotal` (o número principal) quando o pedido NÃO é
+   cancelado.
+3. `faturamentoTotal.toFixed(2)` arredonda pra 2 casas decimais (evita
+   número tipo `79145.40000000001` — ver bônus abaixo) e `Number(...)`
+   transforma o texto resultante de volta em número, porque
+   `toFixed` devolve string.
+
+### Como você teria achado esse bug sozinho
+
+A resposta original já "denunciava" o problema: o campo `porStatus`
+mostrava `cancelado: 101423.79`, e o `faturamentoTotal` batia exatamente
+com a SOMA de todos os status, incluindo o cancelado. Sempre que um total
+"geral" bate 100% com a soma das partes sem exceção nenhuma, desconfie —
+normalmente alguma parte não deveria estar entrando na conta.
+
+### Bônus — o número quebrado (`79145.40000000001`)
+
+Isso é o clássico problema de ponto flutuante do JavaScript (e da maioria
+das linguagens): computadores guardam decimais em binário, e alguns
+números decimais simplesmente não têm representação binária exata — sobra
+um resto quase invisível. Em sistema financeiro de verdade isso se resolve
+trabalhando em **centavos como inteiros** (nunca decimal) ou com uma
+biblioteca como `decimal.js`. Guarda essa explicação — é pergunta clássica
+de entrevista.
 
 ---
 
 ## TASK 5 — 🐛 Bug do 404 (servidor quebra com id inexistente)
 
-**A causa:** `find` retorna `undefined` quando não acha. A linha seguinte
-tenta ler `pedido.clienteId` de `undefined` → TypeError → erro 500.
+**A causa:** `pedidos.find(...)` devolve `undefined` quando nenhum pedido
+bate com o `id`. A linha seguinte, no código original, tentava ler
+`pedido.clienteId` direto — e ler uma propriedade de `undefined` é
+exatamente o que gera `TypeError` (e o Express transforma isso em erro
+500).
 
 ```typescript
 router.get("/:id", (req: Request, res: Response) => {
@@ -159,11 +250,28 @@ router.get("/:id", (req: Request, res: Response) => {
 });
 ```
 
-**A lição que vale carreira:** todo `find`, toda busca no banco, toda
-chamada externa pode voltar vazia. O `return` no `if` é essencial —
-sem ele, o código continua executando e quebra do mesmo jeito.
-Esse padrão (`early return` / guard clause) é o que separa código de
-junior descuidado de código de junior confiável.
+### Passo a passo
+
+1. `req.params.id` vem da URL (`/pedidos/999` → `id = "999"`, texto).
+   `Number(...)` converte pra comparar com o `id` numérico dos pedidos.
+2. **A guarda:** `if (!pedido) { return res.status(404)...}`. Isso é uma
+   *guard clause* — "se a condição ruim acontecer, resolve e sai
+   imediatamente". Sem o `return`, o código continuaria rodando as linhas
+   de baixo mesmo depois de já ter mandado uma resposta 404, e quebraria
+   do mesmo jeito tentando ler `pedido.clienteId` de `undefined`.
+3. Depois da guarda, o TypeScript (e você) já sabe que `pedido` não é
+   `undefined` — o código abaixo pode usar `pedido.clienteId` sem medo.
+4. Repare que `cliente` e `produto` também podem não existir (dados
+   inconsistentes) — por isso o `cliente ? cliente.nome : "..."` também
+   tem sua própria guarda, só que resolvida com um "ou" ao invés de
+   interromper a resposta toda.
+
+### A lição que vale carreira
+
+Todo `find` (e toda busca em banco de dados de verdade, toda chamada pra
+API externa) pode voltar vazio. Perguntar "e se não encontrar?" antes de
+usar o resultado é o hábito que mais separa código confiável de código
+que quebra em produção às 2h da manhã.
 
 ---
 
@@ -212,15 +320,38 @@ router.post("/", (req: Request, res: Response) => {
 });
 ```
 
-**Detalhes que fazem diferença:**
-- Mensagem diz QUAL campo falhou — frontend e usuário agradecem
-- `!quantidadeKg` sozinho seria bug: rejeitaria `0` mas também travaria
-  em edge cases; por isso a checagem explícita de `undefined/null` e
-  depois de tipo/valor
-- Validar que o cliente/produto EXISTEM evita pedido órfão (o famoso
-  problema de integridade que em banco real seria foreign key)
-- No trabalho real, times usam libs como **Zod** pra isso — mas entender
-  a validação na mão vem primeiro
+### Passo a passo
+
+1. Cada validação é sua própria guard clause: checa uma coisa, e se
+   falhar, retorna `400` com uma mensagem dizendo EXATAMENTE qual campo
+   deu problema, e sai (`return`) antes de continuar.
+2. Repare a ordem: primeiro confere se `clienteId` veio, DEPOIS confere
+   se aquele cliente existe de verdade na lista. É inútil buscar um
+   cliente com id `undefined`.
+3. `quantidadeKg === undefined || quantidadeKg === null` — por que não
+   simplesmente `if (!quantidadeKg)`? Porque `!quantidadeKg` também seria
+   `true` quando `quantidadeKg` é `0` — e `0` é um valor que "existe",
+   só é inválido por outro motivo (não é maior que zero). Separar as
+   checagens evita misturar "campo não veio" com "campo veio errado".
+4. `typeof quantidadeKg !== "number" || quantidadeKg <= 0` — essa linha
+   cobre dois problemas de uma vez: tipo errado (ex: mandaram a string
+   `"100"`) e valor inválido (negativo ou zero).
+5. Só depois de passar por TODAS as guardas o código chega no `novoPedido`
+   — nesse ponto, você tem certeza que `cliente`, `produto` e
+   `quantidadeKg` são válidos.
+
+### E se eu não tivesse feito isso?
+
+- Sem validar que cliente/produto EXISTEM (só que vieram preenchidos):
+  criaria um pedido "órfão", apontando pra um cliente que não existe —
+  em banco de dados de verdade, isso é o problema que uma foreign key
+  resolveria; aqui, sem validação manual, ninguém impede.
+- Sem mensagem específica por campo: o frontend (e você, debugando)
+  só saberia "deu erro", sem saber qual campo corrigir.
+
+No trabalho real, times costumam usar bibliotecas como **Zod** ou
+**Joi** pra não escrever tanta validação na mão — mas entender a lógica
+manual primeiro é o que te ajuda a configurar essas libs direito depois.
 
 ---
 
@@ -254,21 +385,39 @@ router.get("/:id/pedidos", (req: Request, res: Response) => {
 });
 ```
 
-**O padrão que você vai usar mil vezes:** `filter` (pega os do cliente)
-→ `map` (enriquece com o nome do produto — isso É um join manual) →
-`reduce` (agrega o total). Essa tríade filter/map/reduce é 80% do
-trabalho com dados em dashboard.
+### Passo a passo (o trio filter → map → reduce)
 
-Repare: as lições das tasks anteriores voltaram — o 404 da Task 5 e o
-"cancelado não conta" da Task 4. No trabalho é assim: os padrões se repetem.
+1. **Guarda de sempre** (lição da Task 5): se o cliente não existe, 404
+   e sai — sem isso o resto do código nem faz sentido de rodar.
+2. **`filter`**: de todos os `pedidos`, pega só os que pertencem a ESTE
+   cliente (`p.clienteId === cliente.id`).
+3. **`map`**: para cada pedido filtrado, busca o nome do produto
+   correspondente e devolve um objeto novo com `...p` (todos os campos
+   originais do pedido) mais o campo `produto` adicionado. Isso É um
+   "join" feito na mão — em SQL seria um `JOIN pedidos ON produtos`.
+4. **`filter` + `reduce`** de novo: dos pedidos do cliente, tira os
+   cancelados (lição da Task 4) e soma (`reduce`) o `valorTotal` de todos
+   que sobraram, começando de `0`.
+5. A resposta final devolve o nome do cliente, a lista enriquecida, o
+   total gasto e a contagem — tudo pronto pro frontend não precisar fazer
+   nenhuma conta.
+
+### Por que isso importa tanto
+
+Esse padrão `filter → map → reduce` é literalmente 80% do trabalho de
+montar dados pra dashboard: filtrar o que interessa, enriquecer/formatar,
+agregar num total. Ver as lições das Tasks 4 e 5 reaparecendo aqui não é
+coincidência — no trabalho real os mesmos padrões voltam task após task.
 
 ---
 
 ## TASK 8 — 🐛 Bug do filtro de categoria
 
-**A causa (uma palavra!):** `.toUpperCase()` — as categorias no banco
-estão em minúsculo (`"vigas"`), mas o filtro compara com `"VIGAS"`.
-Nunca vai bater.
+**A causa (uma palavra!):** o código original comparava
+`p.categoria === categoria.trim().toUpperCase()`. Só que as categorias
+no banco estão salvas em **minúsculo** (`"vigas"`, `"chapas"`...), e o
+filtro convertia a busca pra **maiúsculo** (`"VIGAS"`). `"vigas" ===
+"VIGAS"` é sempre `false` em JavaScript — nunca ia bater.
 
 ```typescript
 router.get("/", (req: Request, res: Response) => {
@@ -285,13 +434,27 @@ router.get("/", (req: Request, res: Response) => {
 });
 ```
 
-**Como achar bug assim em 2 minutos:** joga um `console.log` dentro do
-filter mostrando os dois lados da comparação:
+### Passo a passo
+
+1. Troquei `.toUpperCase()` por `.toLowerCase()` — agora os dois lados da
+   comparação ficam em minúsculo, batendo com o formato salvo no banco.
+2. `.trim()` continua ali por outro motivo: remove espaços em branco no
+   início/fim (ex: se alguém mandar `?categoria= vigas`, o espaço não
+   atrapalha a comparação).
+
+### Como achar esse tipo de bug em 2 minutos
+
+Quando uma comparação (`===`) que "deveria" bater simplesmente não bate,
+joga um `console.log` mostrando os DOIS lados, um do lado do outro:
+
 ```typescript
 console.log(`banco: "${p.categoria}" vs query: "${categoria.trim().toUpperCase()}"`);
-// banco: "vigas" vs query: "VIGAS"  ← achou!
+// banco: "vigas" vs query: "VIGAS"  ← achou! diferença de maiúscula/minúscula
 ```
-Bug de comparação quase sempre é case, espaço ou tipo (string "1" vs número 1).
+
+Bug de comparação quase sempre cai em uma dessas três categorias: **case**
+(maiúsculo/minúsculo), **espaço** (`"vigas "` com espaço sobrando) ou
+**tipo** (string `"1"` comparada com número `1`).
 
 ---
 
@@ -314,14 +477,29 @@ router.get("/estoque-baixo", (req: Request, res: Response) => {
 });
 ```
 
-**A pegadinha da ordem de rotas:** o Express lê as rotas de cima pra
-baixo. Se existisse um `router.get("/:id")` declarado ANTES, a chamada
-`/produtos/estoque-baixo` cairia nele com `id = "estoque-baixo"`.
-Regra prática: **rotas específicas (texto fixo) sempre antes das
-dinâmicas (`/:param`)**. Esse erro derruba gente experiente.
+### Passo a passo
 
-**O sort explicado:** `(a, b) => a.estoqueKg - b.estoqueKg` — resultado
-negativo põe `a` antes. Menor estoque primeiro = mais crítico no topo.
+1. `limiteKg` vem da query, com padrão `5000` (mesmo padrão `Number(...) || valor`
+   que já apareceu na Task 1).
+2. **`filter`**: mantém só os produtos com `estoqueKg` abaixo do limite.
+3. **`sort((a, b) => a.estoqueKg - b.estoqueKg)`**: ordena o array. A
+   regra do `sort` em JS é: se a função devolve um número **negativo**,
+   `a` vem antes de `b`; se devolve **positivo**, `b` vem antes. Como
+   `a.estoqueKg - b.estoqueKg` é negativo quando `a` tem MENOS estoque
+   que `b`, o resultado fica do menor estoque pro maior — o mais crítico
+   aparece primeiro.
+4. **`map`**: adiciona o campo `faltamKg` (quanto falta pra sair do
+   alerta) em cada item, sem alterar os campos originais (`...p`).
+
+### A pegadinha da ordem das rotas (a mais importante da task)
+
+O Express lê as rotas **de cima pra baixo**, na ordem em que foram
+declaradas no arquivo. Se existisse `router.get("/:id", ...)` declarado
+ANTES desta rota, uma chamada em `/produtos/estoque-baixo` cairia
+naquela rota dinâmica, com `req.params.id = "estoque-baixo"` (porque pro
+Express, `estoque-baixo` parece só mais um valor de `:id`). Por isso a
+regra prática: **rotas de texto fixo sempre antes de rotas com `:parametro`.**
+Esse é um erro que derruba até gente com anos de experiência.
 
 ---
 
@@ -398,18 +576,30 @@ import dashboardRoutes from "./routes/dashboard.routes";
 app.use("/dashboard", dashboardRoutes);
 ```
 
-**O que essa task ensina:**
-- O padrão "objeto acumulador" (`kgPorProduto`, `gastoPorCliente`) —
-  é o GROUP BY do SQL feito em JavaScript. Compare mentalmente:
-  ```sql
-  SELECT cliente_id, SUM(valor_total) FROM pedidos
-  WHERE status != 'cancelado' GROUP BY cliente_id
-  ORDER BY 2 DESC LIMIT 3;
-  ```
-  É a MESMA lógica. Quem entende um, entende o outro.
-- `Object.entries` transforma objeto em array pra poder ordenar
-- `sort` decrescente: `(a, b) => b.total - a.total` (b primeiro = maior primeiro)
-- Registrar rota nova no server é o que você fará na primeira semana real
+### Passo a passo
+
+1. `pedidosValidos` filtra os cancelados logo no início — todas as outras
+   contas desta rota partem dele, evitando repetir a mesma checagem várias
+   vezes (lição da Task 4, aplicada uma vez só, no topo).
+2. **Padrão "objeto acumulador"** (`kgPorProduto`, `gastoPorCliente`): um
+   `for` que, a cada pedido, soma num objeto indexado pelo id. É
+   literalmente o `GROUP BY` do SQL, escrito à mão:
+   ```sql
+   SELECT cliente_id, SUM(valor_total) FROM pedidos
+   WHERE status != 'cancelado' GROUP BY cliente_id
+   ORDER BY 2 DESC LIMIT 3;
+   ```
+   O `for` com objeto acumulador faz o `GROUP BY`; o `Object.entries` +
+   `sort` + `slice(0, 3)` faz o `ORDER BY ... LIMIT 3`.
+3. `Object.entries(objeto)` transforma `{ "1": 500, "2": 300 }` num array
+   `[["1", 500], ["2", 300]]` — só arrays têm `.sort()`, por isso essa
+   conversão é necessária antes de ordenar.
+4. `sort((a, b) => b.totalGasto - a.totalGasto)` — igual à Task 9, mas
+   invertido (`b - a` em vez de `a - b`): agora quem tem MAIS gasto vem
+   primeiro (ordem decrescente).
+5. Registrar a rota no `server.ts` com `app.use("/dashboard", dashboardRoutes)`
+   é o passo que ninguém lembra de fazer na primeira vez — a rota existir
+   no arquivo não é suficiente, o Express precisa ser avisado que ela existe.
 
 ---
 
@@ -423,6 +613,6 @@ app.use("/dashboard", dashboardRoutes);
 6. **filter → map → reduce é o GROUP BY do JavaScript.** Domina isso e dashboards viram rotina.
 
 Se você fez as 10 tasks (mesmo consultando o gabarito depois de tentar),
-você já praticou o dia a dia real de um dev junior em time. 
+você já praticou o dia a dia real de um dev junior em time.
 
 **Agora refaz a Task 10 sem olhar. É o teste final.**

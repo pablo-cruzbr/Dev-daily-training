@@ -556,6 +556,29 @@ não segura um sistema em produção por muito tempo.
 
 ---
 
+### TASK 15 — Segurança básica de API
+**Prioridade:** Alta | **Estimativa:** 1h | **Arquivo:** `src/server.ts`
+
+**O problema:** a API não tem nenhuma proteção básica hoje — sem
+headers de segurança, sem CORS configurado (qualquer site poderia
+chamar sua API do navegador de um usuário), sem limite de requisições.
+
+**O que fazer:** instalar e configurar `helmet` (headers de segurança
+padrão) e `cors` (definir quem pode chamar a API). Bônus: um rate
+limiter simples (`express-rate-limit`) pra evitar abuso.
+
+**Critérios de aceite:**
+- [ ] `helmet` aplicado globalmente
+- [ ] `cors` configurado (decida: liberar geral pra este projeto de treino, ou restringir — documente sua escolha)
+- [ ] Pesquisou o que `express-rate-limit` faz, mesmo que não implemente
+
+**Por que importa:** essas três coisas (headers seguros, CORS, rate
+limit) são praticamente checklist mínimo de qualquer API exposta na
+internet — não são "extra", são o básico esperado antes de qualquer
+sistema ir pro ar.
+
+---
+
 ## 🎤 RITUAL PÓS-TASK (não pula!)
 
 Depois de cada task, fala em voz alta (português ou inglês — inglês vale
